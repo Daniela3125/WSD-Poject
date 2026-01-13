@@ -1,70 +1,151 @@
-# Getting Started with Create React App
+FlickrSearch – Technical Documentation
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1. General Overview
+FlickrSearch is a web application for searching and viewing public photos from Flickr. The application allows filtering by author, tags, and date, and provides Dark Mode, search history, and authentication via Supabase. The project uses React for the frontend and Supabase for the backend (authentication and data storage).
+The repository contains all the frontend code, while Supabase serves as a serverless backend for authentication and storage.
 
-## Available Scripts
+2. Technical Objectives
+•	Modern web architecture with React 19.2.3
+•	Responsive interface with Tailwind CSS
+•	Magic Link authentication via Supabase
+•	Synchronization of search history and Dark Mode with Supabase
+•	Image filtering and pagination
+•	Consumption of the Flickr public API and local caching (LocalStorage)
+•	Full deployment on Vercel
 
-In the project directory, you can run:
+3. Features
+•	Search photos by tags or author
+•	Dark Mode / Light Mode
+•	Persistent search history for unauthenticated users (LocalStorage) and synchronized for logged-in users (Supabase)
+•	Results pagination
+•	Filtering by author, tag, and date
+•	Magic Link authentication via email
+•	Responsive design for desktop and mobile
 
-### `npm start`
+4. Technologies Used
+Frontend
+•	React 19.2.3, JSX
+•	Tailwind CSS 4.1.18
+•	Lucide React for icons
+•	react-scripts (CRA)
+•	Axios for API requests
+Backend / Services
+•	Supabase (auth + database)
+•	Flickr Public API
+Storage / Persistence
+•	LocalStorage (for unauthenticated users)
+•	Supabase (for authenticated users)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+5. Agile Methodology
+The project was developed iteratively, with continuous testing and feedback.
+Main sprints:
+•	Interface and layout
+•	Dark Mode and LocalStorage
+•	Supabase integration for authentication and data synchronization
+•	Photo search and filtering
+•	Pagination and optimizations
+•	Testing and deployment on Vercel
+Development flow:
+A[Planning] --> B[UI/UX Design]
+B --> C[Implementation]
+C --> D[Unit + Integration Testing]
+D --> E[Evaluation]
+E --> F[Sprint Retrospective]
+F --> G[Next Sprint]
+G --> A
+6. Application Architecture
+Frontend - React
+A[React Components] --> B[SearchBar, PhotoGrid, PhotoCard]
+B --> C[Custom Hooks: useFlickr, useLocalStorage, useSupabaseSync]
+C --> D[API Calls / Flickr + Supabase]
+end
+Backend - Supabase
+D --> E[Magic Link Authentication]
+D --> F[Dark Mode + History Storage]
+end
+External Services
+X[Flickr API] --> C
+End
+7. React Component Architecture
+App --> Home
+Home --> SearchBar
+Home --> PhotoGrid
+PhotoGrid --> PhotoCard
+Home --> Pagination
+Home --> Filters
+Home --> HistoryButtons
+Home --> DarkModeToggle
+8. API Documetation
+Flickr API (Public)
+Method	Endpoint	Description
+GET	https://www.flickr.com/services/feeds/photos_public.gne?tags=...	Returns public photos with the specified tag
+Supabase (Profiles)
+Method	Endpoint	Description
+SELECT	profiles	Retrieves user data (dark_mode, search_history)
+UPSERT	profiles	Saves/updates dark_mode and search_history for the user
+9. Frontend Routes
+Route	Component	Description
+/	Home	Main page with photo search and viewing
+N/A	–	Magic Link authentication in popup
+		
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+10. Unit & Integration Testing
+Jest + React Testing Library
+Example test:
+import { render, screen, fireEvent } from '@testing-library/react'
+import SearchBar from '../components/SearchBar'
 
-### `npm test`
+test('calls onSearch when Enter is pressed', () => {
+  const onSearch = jest.fn()
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  render(<SearchBar onSearch={onSearch} />)
 
-### `npm run build`
+  const input = screen.getByPlaceholderText(/search photos/i)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  fireEvent.change(input, {
+    target: { value: 'nature' }
+  })
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  fireEvent.keyDown(input, {
+    key: 'Enter',
+    code: 'Enter'
+  })
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  expect(onSearch).toHaveBeenCalledWith('nature')
+})
 
-### `npm run eject`
+For custom hooks (useLocalStorage):
+import { renderHook, act } from '@testing-library/react'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+describe('useLocalStorage hook', () => {
+  test('stores value in localStorage', () => {
+    const { result } = renderHook(() =>
+      useLocalStorage('test-key', [])
+    )
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    act(() => {
+      result.current[1](['test-value'])
+    })
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    const stored = JSON.parse(localStorage.getItem('test-key'))
+    expect(stored).toEqual(['test-value'])
+  })
+})
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Run tests with:
+npm test
+11. Deployment – Vercel
+1.	Pushed the project to GitHub ( https://github.com/Daniela3125/WSD-Poject )
+2.	Vercel → New Project → Import GitHub Repo
+3.	Framework: Create React App
+4.	Build Command: npm run build
+5.	Output Directory: build
+6.	Deploy
+Live Demo
+The application is live at:
+https://wsd-poject-lvh1.vercel.app/
 
-## Learn More
+12. Conclusions
+FlickrSearch is a modern, responsive web application with authentication, Dark Mode, and synchronized search history. The project is ready for scaling, automated testing, and deployment on cloud platforms such as Vercel.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
